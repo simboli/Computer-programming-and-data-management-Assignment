@@ -2,11 +2,36 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import altair as alt
 
-# Function to load data
-def load_data():
-    data = pd.read_csv('02.Transformed data/01.EU27_emissions.csv')  # Replace 'your_file.csv' with your CSV file path
-    return data
+# *********************************
+# FUNCTIONS
+# *********************************
+# Functions to load data
+def load_data_EU27_emissions():
+    data_EU27_emissions = pd.read_csv('02.Transformed data/01.EU27_emissions.csv')  # 01.EU27_emissions.csv
+    return data_EU27_emissions
+
+def load_data_EU27_passengers():
+    data_EU27_passengers = pd.read_csv('02.Transformed data/02.EU27_passengers.csv')  # 02.EU27_passengers.csv
+    return data_EU27_passengers
+
+def load_data_EU27_emissions_proCapita():
+    data_EU27_emissions_proCapita = pd.read_csv('02.Transformed data/03.EU27_emissions_proCapita.csv')  # 03.EU27_emissions_proCapita
+    return data_EU27_emissions_proCapita
+
+# Functions to viasualize data
+def visualize_data(df, x_axis, y_axis):
+    graph = alt.Chart(df).mark_circle(size=60).encode(
+        x=x_axis,
+        y=y_axis,
+        color='Origin',
+        tooltip=['Name', 'Origin', 'Horsepower', 'Miles_per_Gallon']
+    ).interactive()
+
+    st.write(graph)
+
+
 
 # Page for Data Visualization
 def data_visualization_page(df):
@@ -52,19 +77,30 @@ def fixed_text_page():
 
 # Main app function
 def main():
-    # Sidebar for navigation
-    st.sidebar.title("Navigation this")
-    pages = ["Data Visualization", "Fixed Text Page"]
-    selected_page = st.sidebar.radio("Select a page:", pages)
-
     # Load data
-    df = load_data()
+    df_EU27_emissions=load_data_EU27_emissions()
+    df_EU27_passengers=load_data_EU27_passengers()
+    df_EU27_emissions_proCapita=load_data_EU27_emissions_proCapita()
+
+    # Sidebar for navigation
+    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Exploration", "Chart"])
 
     # Page selection
-    if selected_page == "Data Visualization":
-        data_visualization_page(df)
-    elif selected_page == "Fixed Text Page":
+    if page == "Homepage":
+        st.header("This is your data explorer.")
+        st.write("Please select a page on the left.")
+        st.write(df_EU27_passengers)
+        data_visualization_page(df_EU27_emissions)
+    elif page == "Exploration":
+        st.title("Data Exploration")
+        x_axis = st.selectbox("Choose a variable for the x-axis", df_EU27_emissions.columns, index=3)
+        y_axis = st.selectbox("Choose a variable for the y-axis", df_EU27_emissions.columns, index=4)
+        visualize_data(df_EU27_emissions, x_axis, y_axis)
+    elif page == "Chart":  
         fixed_text_page()
+
+
+
 
 # Run the app
 if __name__ == "__main__":
