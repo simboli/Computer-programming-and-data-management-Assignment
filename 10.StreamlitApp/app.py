@@ -20,6 +20,18 @@ def load_data_EU27_emissions_proCapita():
     data_EU27_emissions_proCapita = pd.read_csv('02.Transformed data/03.EU27_emissions_proCapita.csv')  # 03.EU27_emissions_proCapita
     return data_EU27_emissions_proCapita
 
+def load_data_VFE():
+    data_VFE = pd.read_csv('02.Transformed data/12.VFE.csv')  # 12.VFE
+    return data_VFE
+
+def load_data_VFE_climb_National():
+    data_VFE_climb_National = pd.read_csv('02.Transformed data/12.1.VFE_climb_National.csv')  # 12.VFE
+    return data_VFE_climb_National
+
+def load_data_VFE_descent_National():
+    data_VFE_descent_National = pd.read_csv('02.Transformed data/12.3.VFE_descent_National.csv')  # 12.VFE
+    return data_VFE_descent_National
+
 # Functions to viasualize data
 def visualize_data(df, x_axis, y_axis):
     graph = alt.Chart(df).mark_circle(size=60).encode(
@@ -30,6 +42,10 @@ def visualize_data(df, x_axis, y_axis):
     ).interactive()
 
     st.write(graph)
+
+
+
+
 
 
 
@@ -78,12 +94,15 @@ def fixed_text_page():
 # Main app function
 def main():
     # Load data
-    df_EU27_emissions=load_data_EU27_emissions()
-    df_EU27_passengers=load_data_EU27_passengers()
-    df_EU27_emissions_proCapita=load_data_EU27_emissions_proCapita()
+    df_EU27_emissions = load_data_EU27_emissions()
+    df_EU27_passengers = load_data_EU27_passengers()
+    df_EU27_emissions_proCapita = load_data_EU27_emissions_proCapita()
+    df_VFE = load_data_VFE()
+    df_VFE_climb_National = load_data_VFE_climb_National()
+    df_VFE_descent_National = load_data_VFE_descent_National()
 
     # Sidebar for navigation
-    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Exploration", "Chart"])
+    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Exploration", "Chart", "VFE", "Geo"])
 
     # Page selection
     if page == "Homepage":
@@ -98,6 +117,27 @@ def main():
         visualize_data(df_EU27_emissions, x_axis, y_axis)
     elif page == "Chart":  
         fixed_text_page()
+    elif page == "VFE":
+        st.title("Vertical flight efficiency")
+        st.write("VFE over time")
+
+        st.bar_chart(df_VFE_climb_National, x="PERIOD_ID", y="AVG_DIST_CLIMB", color="#FF0000")
+        st.bar_chart(df_VFE_descent_National, x="PERIOD_ID", y="AVG_DIST_DESCENT", color="#FF0000")
+        #st.line_chart(df_VFE, x="PERIOD_ID", y=["TOT_DELTA_CO2_KG_CLIMB_BELOW_10000", "NBR_CCO_FLIGHTS"], color=["#FF0000", "#0000FF"])
+        #st.bar_chart(df_VFE, x="PERIOD_ID", y="TOT_DELTA_CO2_KG_CLIMB_BELOW_10000", color="#FF0000")
+        
+        st.write("Filtering example")
+        
+        selected_class = st.radio("Select Class", df_VFE_climb_National['YEAR'].unique())
+        st.write("Selected Class:", selected_class)
+
+        st.bar_chart(df_VFE_climb_National[df_VFE_climb_National.YEAR == selected_class], x="PERIOD_ID", y="AVG_DIST_CLIMB", color="#000080")
+        st.bar_chart(df_VFE_descent_National[df_VFE_descent_National.YEAR == selected_class], x="PERIOD_ID", y="AVG_DIST_DESCENT", color="#000080")
+
+        
+
+
+
 
 
 
